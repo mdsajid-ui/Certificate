@@ -8,7 +8,6 @@ Run with:  streamlit run app.py
 import os
 import io
 import zipfile
-import datetime
 
 import pandas as pd
 import streamlit as st
@@ -203,15 +202,16 @@ if not st.session_state.get("logged_in", False):
 
 
 NAVY = "#0B1B4D"
-NAVY_DEEP = "#060F30"
+NAVY_DEEP = "#03143f"
 RED = "#EF233C"
-ACCENT = "#5B6CF7"
-ACCENT_2 = "#8A5CFF"
+ACCENT = "#3b8cff"
+ACCENT_2 = "#a832ff"
 GOLD = "#D4AF37"
-BG = "#F4F5FB"
-CARD = "#FFFFFF"
-BORDER = "#E7E9F6"
-MUTED = "#6B7188"
+BG = "#03143f"
+CARD = "rgba(255,255,255,.06)"
+BORDER = "rgba(255,255,255,.14)"
+MUTED = "rgba(232,238,255,.68)"
+TEXT = "#EAF0FF"
 
 st.markdown(
     f"""
@@ -221,22 +221,32 @@ st.markdown(
         html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; }}
         .stApp {{
             background:
-                radial-gradient(1000px 500px at 100% -5%, {ACCENT}14, transparent 55%),
-                radial-gradient(800px 500px at -5% 10%, {GOLD}10, transparent 50%),
-                {BG};
+                radial-gradient(circle at 8% 82%, rgba(0, 183, 255, .20), transparent 27%),
+                radial-gradient(circle at 92% 78%, rgba(210, 40, 255, .19), transparent 30%),
+                radial-gradient(circle at 50% 0%, rgba(65, 93, 255, .14), transparent 38%),
+                linear-gradient(135deg, #03143f 0%, #071b4f 45%, #13052f 100%);
+            min-height: 100vh;
         }}
         #MainMenu, footer, header[data-testid="stHeader"] {{ visibility: hidden; }}
+
+        /* ---------- Global text colors for dark theme ---------- */
+        .stApp, .stApp p, .stApp span, .stApp label, .stApp li,
+        .stApp .stMarkdown, .stApp .stCaption, [data-testid="stCaptionContainer"] {{
+            color: {TEXT};
+        }}
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4 {{ color: #ffffff; }}
 
         /* ---------- Hero ---------- */
         .dv-hero {{
             position: relative; overflow: hidden;
             background: radial-gradient(130% 180% at 0% 0%, {ACCENT_2}3d 0%, transparent 45%),
                         radial-gradient(120% 160% at 100% 100%, {RED}26 0%, transparent 40%),
-                        linear-gradient(120deg, {NAVY} 0%, {NAVY_DEEP} 100%);
+                        linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
             padding: 32px 36px; border-radius: 22px; margin-bottom: 28px;
             display: flex; align-items: center; justify-content: space-between; gap: 18px;
-            box-shadow: 0 20px 45px -18px rgba(11,27,77,0.55);
-            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 20px 45px -18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.14);
+            backdrop-filter: blur(18px);
         }}
         .dv-hero-left {{ display: flex; align-items: center; gap: 18px; }}
         .dv-hero .mark {{
@@ -251,7 +261,7 @@ st.markdown(
             color: white; font-size: 24px; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 700;
             letter-spacing: -.3px;
         }}
-        .dv-hero p {{ color: #B7BEEF; font-size: 13px; margin: 4px 0 0; }}
+        .dv-hero p {{ color: #B7C2F5; font-size: 13px; margin: 4px 0 0; }}
         .dv-hero-pill {{
             display: flex; align-items: center; gap: 8px; color: #EAF0FF; font-size: 12.5px;
             font-weight: 600; padding: 8px 14px; border-radius: 999px;
@@ -265,17 +275,17 @@ st.markdown(
 
         /* ---------- Glass cards ---------- */
         .dv-card {{
-            background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.72));
-            border: 1px solid {BORDER}; border-radius: 18px;
+            background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+            border: 1px solid {BORDER}; border-radius: 20px;
             padding: 24px 26px; margin-bottom: 20px;
-            box-shadow: 0 8px 24px -14px rgba(11,27,77,0.14);
-            backdrop-filter: blur(10px);
-            transition: box-shadow .2s ease;
+            box-shadow: 0 18px 45px -22px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+            backdrop-filter: blur(18px);
+            transition: box-shadow .2s ease, border-color .2s ease;
         }}
-        .dv-card:hover {{ box-shadow: 0 14px 34px -16px rgba(11,27,77,0.20); }}
+        .dv-card:hover {{ box-shadow: 0 22px 55px -22px rgba(0,0,0,.65); border-color: rgba(255,255,255,.22); }}
         .dv-section-title {{
             font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17.5px;
-            color: {NAVY}; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;
+            color: #ffffff; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;
         }}
         .dv-section-title:before {{
             content: ""; display: inline-block; width: 6px; height: 18px; border-radius: 4px;
@@ -285,17 +295,18 @@ st.markdown(
 
         /* ---------- Tabs as pill nav ---------- */
         div[data-testid="stTabs"] div[data-baseweb="tab-list"] {{
-            gap: 6px; background: rgba(11,27,77,.05); padding: 6px; border-radius: 14px;
+            gap: 6px; background: rgba(255,255,255,.05); padding: 6px; border-radius: 14px;
             border: 1px solid {BORDER};
         }}
         div[data-testid="stTabs"] button[data-baseweb="tab"] {{
             font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13.5px;
             color: {MUTED}; padding: 10px 18px; border-radius: 10px; transition: all .15s ease;
         }}
+        div[data-testid="stTabs"] button[data-baseweb="tab"] p {{ color: inherit; }}
         div[data-testid="stTabs"] button[aria-selected="true"] {{
             color: white !important;
-            background: linear-gradient(135deg, {NAVY}, {ACCENT});
-            box-shadow: 0 6px 16px -6px {NAVY}99;
+            background: linear-gradient(135deg, #096dff 0%, #7140ff 55%, #a82cff 100%);
+            box-shadow: 0 6px 18px -6px rgba(120,80,255,.55);
         }}
         div[data-testid="stTabs"] button[aria-selected="true"] p {{ color: white !important; }}
         div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ display: none; }}
@@ -303,40 +314,41 @@ st.markdown(
 
         /* ---------- Metrics ---------- */
         div[data-testid="stMetric"] {{
-            background: linear-gradient(180deg, #ffffff, #fbfbff);
+            background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
             border: 1px solid {BORDER}; border-radius: 16px;
-            padding: 16px 18px; box-shadow: 0 6px 18px -12px rgba(11,27,77,0.18);
+            padding: 16px 18px; box-shadow: 0 6px 18px -12px rgba(0,0,0,.4);
             border-top: 3px solid {ACCENT};
+            backdrop-filter: blur(14px);
         }}
-        div[data-testid="stMetricLabel"] {{ color: {MUTED}; font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .3px; }}
-        div[data-testid="stMetricValue"] {{ color: {NAVY}; font-family: 'Poppins', sans-serif; font-weight: 700; }}
+        div[data-testid="stMetricLabel"] {{ color: {MUTED} !important; font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .3px; }}
+        div[data-testid="stMetricValue"] {{ color: #ffffff !important; font-family: 'Poppins', sans-serif; font-weight: 700; }}
 
         /* ---------- Advanced buttons ---------- */
         .stButton>button {{
             position: relative; overflow: hidden;
-            background: linear-gradient(135deg, {NAVY} 0%, {ACCENT} 55%, {ACCENT_2} 130%);
+            background: linear-gradient(135deg, #096dff 0%, #7140ff 55%, #a82cff 100%);
             background-size: 200% auto;
             color: white; border-radius: 12px; font-weight: 700; border: none;
             padding: 0.68em 1.5em; font-family: 'Poppins', sans-serif; font-size: 14.5px;
-            box-shadow: 0 10px 24px -8px {NAVY}77, inset 0 1px 0 rgba(255,255,255,.18);
+            box-shadow: 0 10px 26px -8px rgba(62,78,255,.45), inset 0 1px 0 rgba(255,255,255,.18);
             transition: all .22s ease; letter-spacing: .1px;
         }}
         .stButton>button:hover {{
             transform: translateY(-2px); background-position: right center;
-            box-shadow: 0 16px 32px -10px {NAVY}99, inset 0 1px 0 rgba(255,255,255,.25); color: white;
+            box-shadow: 0 16px 34px -10px rgba(120,80,255,.55), inset 0 1px 0 rgba(255,255,255,.25); color: white;
         }}
         .stButton>button:active {{ transform: translateY(0px) scale(.99); }}
         .stButton>button:disabled {{
-            background: #DEE0EE; color: #9296AC; box-shadow: none; transform: none;
+            background: rgba(255,255,255,.08); color: rgba(234,240,255,.35); box-shadow: none; transform: none;
         }}
         .stDownloadButton>button {{
-            background: white; color: {NAVY}; border: 1.5px solid {NAVY}2e; border-radius: 12px;
+            background: rgba(255,255,255,.06); color: #EAF0FF; border: 1.5px solid rgba(255,255,255,.20); border-radius: 12px;
             font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 13.5px;
-            transition: all .18s ease; padding: 0.6em 1.2em;
+            transition: all .18s ease; padding: 0.6em 1.2em; backdrop-filter: blur(10px);
         }}
         .stDownloadButton>button:hover {{
             border-color: {ACCENT}; color: {ACCENT}; transform: translateY(-1px);
-            box-shadow: 0 8px 18px -10px {ACCENT}aa;
+            box-shadow: 0 8px 20px -10px {ACCENT}aa;
         }}
 
         /* Primary CTA buttons (generate / send) get an extra glow */
@@ -350,22 +362,64 @@ st.markdown(
             font-size: 12px; font-weight: 700; font-family: 'Poppins', sans-serif;
             letter-spacing: .2px;
         }}
-        .dv-badge-ok {{ background: #E4F7EC; color: #128A44; }}
-        .dv-badge-warn {{ background: #FDECEC; color: {RED}; }}
+        .dv-badge-ok {{ background: rgba(52,211,153,.16); color: #34d399; border: 1px solid rgba(52,211,153,.3); }}
+        .dv-badge-warn {{ background: rgba(239,35,60,.16); color: #ff8398; border: 1px solid rgba(239,35,60,.3); }}
 
         div[data-testid="stProgress"] > div > div {{
             background: linear-gradient(90deg, {ACCENT}, {RED}); border-radius: 999px;
         }}
+        div[data-testid="stProgress"] {{ background: rgba(255,255,255,.08); border-radius: 999px; }}
 
         /* ---------- File uploader ---------- */
         [data-testid="stFileUploaderDropzone"] {{
-            background: linear-gradient(180deg, #fbfbff, #f4f5fc) !important;
-            border: 1.5px dashed {ACCENT}55 !important; border-radius: 14px !important;
+            background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
+            border: 1.5px dashed rgba(255,255,255,.25) !important; border-radius: 14px !important;
         }}
+        [data-testid="stFileUploaderDropzone"] * {{ color: {TEXT} !important; }}
+        [data-testid="stFileUploaderDropzone"] small {{ color: {MUTED} !important; }}
+        [data-testid="stFileUploaderDropzone"] button {{
+            background: rgba(255,255,255,.08) !important; color: #EAF0FF !important;
+            border: 1px solid rgba(255,255,255,.2) !important;
+        }}
+
+        /* ---------- Inputs, sliders, checkboxes, color picker ---------- */
+        .stTextInput > div > div, .stTextArea > div > div {{
+            background: rgba(255,255,255,.05) !important; border: 1px solid rgba(255,255,255,.16) !important;
+            border-radius: 12px !important;
+        }}
+        .stTextInput > div > div:focus-within, .stTextArea > div > div:focus-within {{
+            border-color: {ACCENT} !important; box-shadow: 0 0 0 3px rgba(59,140,255,.16) !important;
+        }}
+        .stTextInput input, .stTextArea textarea {{ color: #ffffff !important; }}
+        .stTextInput input::placeholder, .stTextArea textarea::placeholder {{ color: rgba(255,255,255,.35) !important; }}
+        .stSlider [data-baseweb="slider"] > div > div {{ background: rgba(255,255,255,.12) !important; }}
+        .stSlider [role="slider"] {{ background: {ACCENT} !important; box-shadow: 0 0 0 6px rgba(59,140,255,.16) !important; }}
+        .stCheckbox label span, .stCheckbox p {{ color: {TEXT} !important; }}
+        [data-testid="stColorPickerBlock"] {{ border: 1px solid {BORDER}; border-radius: 10px; overflow: hidden; }}
+
+        /* ---------- Expander ---------- */
+        details[data-testid="stExpander"] {{
+            background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+            border: 1px solid {BORDER}; border-radius: 14px; backdrop-filter: blur(10px);
+        }}
+        details[data-testid="stExpander"] summary {{ color: {TEXT} !important; font-weight: 600; }}
+
+        /* ---------- Dataframe ---------- */
+        [data-testid="stDataFrame"] {{
+            border: 1px solid {BORDER}; border-radius: 14px; overflow: hidden;
+        }}
+
+        /* ---------- Alerts (info / warning / success / error) ---------- */
+        div[data-testid="stAlert"] {{
+            background: rgba(255,255,255,.06) !important; border: 1px solid {BORDER} !important;
+            border-radius: 12px !important; backdrop-filter: blur(10px);
+        }}
+        div[data-testid="stAlert"] p {{ color: {TEXT} !important; }}
 
         /* ---------- Sidebar ---------- */
         section[data-testid="stSidebar"] {{
             background: linear-gradient(180deg, {NAVY_DEEP}, {NAVY}) !important;
+            border-right: 1px solid rgba(255,255,255,.08);
         }}
         section[data-testid="stSidebar"] * {{ color: #EAF0FF !important; }}
         section[data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,.12) !important; }}
@@ -410,19 +464,8 @@ defaults = {
     "results": [],
     "font_size": 60,
     "y_pos_pct": 50,
-    "x_pos_pct": 50,
     "text_color_hex": "#0B1B4D",
     "confirmed_params": None,
-    "stamp_reg_date": True,
-    "reg_prefix": datetime.date.today().strftime("%Y%m") + "DVA",
-    "reg_start": 1001,
-    "reg_date_font_size": 24,
-    "reg_x_pct": 45,
-    "reg_y_pct": 61,
-    "reg_align": "left",
-    "date_x_pct": 79,
-    "date_y_pct": 61,
-    "date_align": "left",
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -509,91 +552,30 @@ with tab1:
             with c1:
                 font_size = st.slider("Font size (px)", 20, 300, key="font_size")
                 y_pos = st.slider("Vertical position (% down)", 0, 100, key="y_pos_pct") / 100.0
-                x_pos = st.slider("Horizontal position (% across)", 0, 100, key="x_pos_pct") / 100.0
             with c2:
                 color_hex = st.color_picker("Text color", key="text_color_hex")
                 if st.button("↺ Auto-fit to this template"):
                     s_y = suggest_name_position(template_img)
                     s_size, s_color = suggest_text_style(template_img, s_y)
                     st.session_state.y_pos_pct = int(round(s_y * 100))
-                    st.session_state.x_pos_pct = 50
                     st.session_state.font_size = s_size
                     st.session_state.text_color_hex = "#%02x%02x%02x" % s_color
                     st.session_state.confirmed_params = None
                     st.rerun()
-            st.caption(
-                "Most templates have the name centered — but if your template has "
-                "the name inline in a sentence (e.g. \"This is to certify that "
-                "[ ___ ] has completed...\"), its blank usually isn't dead-center. "
-                "Use the horizontal slider and the live preview below to line it up."
-            )
-
-        with st.expander("🔢 Registration number & date", expanded=False):
-            st.checkbox(
-                "Stamp a registration number and completion date on each certificate",
-                key="stamp_reg_date",
-            )
-            if st.session_state.stamp_reg_date:
-                st.caption(
-                    "Registration numbers are generated automatically — "
-                    "`{prefix}{start}`, `{prefix}{start+1}`, ... one per certificate in "
-                    "this batch. The date is filled in as today's date for every "
-                    "certificate. Use the sliders to line these up with the blank "
-                    "`[ ]` brackets already printed on your template."
-                )
-                rc1, rc2 = st.columns(2)
-                with rc1:
-                    st.text_input("Registration number prefix", key="reg_prefix")
-                    st.number_input("Starting number", min_value=1, step=1, key="reg_start")
-                    st.slider("Reg. no. font size (px)", 10, 150, key="reg_date_font_size")
-                with rc2:
-                    st.slider("Reg. no. horizontal position (%)", 0, 100, key="reg_x_pct")
-                    st.slider("Reg. no. vertical position (%)", 0, 100, key="reg_y_pct")
-                    st.slider("Date horizontal position (%)", 0, 100, key="date_x_pct")
-                    st.slider("Date vertical position (%)", 0, 100, key="date_y_pct")
 
         font_size = st.session_state.font_size
         y_pos = st.session_state.y_pos_pct / 100.0
-        x_pos = st.session_state.x_pos_pct / 100.0
         color_hex = st.session_state.text_color_hex
         text_color = tuple(int(color_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
 
         if st.session_state.records:
             sample_name = st.session_state.records[0]["Name"]
-            preview_extra_fields = None
-            if st.session_state.stamp_reg_date:
-                today_str = datetime.date.today().strftime("%d-%m-%Y")
-                preview_extra_fields = [
-                    {
-                        "text": f"{st.session_state.reg_prefix}{st.session_state.reg_start}",
-                        "x_pct": st.session_state.reg_x_pct / 100.0,
-                        "y_pct": st.session_state.reg_y_pct / 100.0,
-                        "font_size": st.session_state.reg_date_font_size,
-                        "color": text_color,
-                        "align": "left",
-                    },
-                    {
-                        "text": today_str,
-                        "x_pct": st.session_state.date_x_pct / 100.0,
-                        "y_pct": st.session_state.date_y_pct / 100.0,
-                        "font_size": st.session_state.reg_date_font_size,
-                        "color": text_color,
-                        "align": "left",
-                    },
-                ]
             preview_img = render_certificate_image(
-                template_img, sample_name, None, font_size, text_color, y_pos,
-                x_position_pct=x_pos, extra_fields=preview_extra_fields,
+                template_img, sample_name, None, font_size, text_color, y_pos
             )
             st.image(preview_img, caption=f"Live preview — {sample_name}", use_container_width=True)
 
-            current_params = (
-                fingerprint, font_size, round(y_pos, 3), round(x_pos, 3), color_hex,
-                st.session_state.stamp_reg_date, st.session_state.reg_prefix,
-                st.session_state.reg_start, st.session_state.reg_date_font_size,
-                st.session_state.reg_x_pct, st.session_state.reg_y_pct,
-                st.session_state.date_x_pct, st.session_state.date_y_pct,
-            )
+            current_params = (fingerprint, font_size, round(y_pos, 3), color_hex)
             confirmed = st.checkbox(
                 "✅ I can clearly see the name above on the certificate",
                 value=(st.session_state.confirmed_params == current_params),
@@ -623,16 +605,9 @@ with tab2:
     fingerprint = st.session_state.template_fingerprint
     font_size = st.session_state.font_size
     y_pos = st.session_state.y_pos_pct / 100.0
-    x_pos = st.session_state.x_pos_pct / 100.0
     color_hex = st.session_state.text_color_hex
     text_color = tuple(int(color_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
-    current_params = (
-        fingerprint, font_size, round(y_pos, 3), round(x_pos, 3), color_hex,
-        st.session_state.stamp_reg_date, st.session_state.reg_prefix,
-        st.session_state.reg_start, st.session_state.reg_date_font_size,
-        st.session_state.reg_x_pct, st.session_state.reg_y_pct,
-        st.session_state.date_x_pct, st.session_state.date_y_pct,
-    )
+    current_params = (fingerprint, font_size, round(y_pos, 3), color_hex)
     preview_confirmed = st.session_state.confirmed_params == current_params and fingerprint is not None
 
     disabled = not (records and template_path)
@@ -646,51 +621,18 @@ with tab2:
         progress = st.progress(0, text="Starting...")
         used_names = {}
         cert_paths = {}
-        today_str = datetime.date.today().strftime("%d-%m-%Y")
-        stamp_reg_date = st.session_state.stamp_reg_date
-        reg_prefix = st.session_state.reg_prefix
-        reg_start = st.session_state.reg_start
-        reg_date_font_size = st.session_state.reg_date_font_size
-        reg_x_pct = st.session_state.reg_x_pct / 100.0
-        reg_y_pct = st.session_state.reg_y_pct / 100.0
-        date_x_pct = st.session_state.date_x_pct / 100.0
-        date_y_pct = st.session_state.date_y_pct / 100.0
         for i, rec in enumerate(records):
             name = rec["Name"]
-            extra_fields = None
-            if stamp_reg_date:
-                # Sequential per certificate in this batch: prefix + start,
-                # start+1, start+2, ... — every record gets its own number
-                # even if names repeat.
-                extra_fields = [
-                    {
-                        "text": f"{reg_prefix}{reg_start + i}",
-                        "x_pct": reg_x_pct, "y_pct": reg_y_pct,
-                        "font_size": reg_date_font_size, "color": text_color,
-                        "align": "left",
-                    },
-                    {
-                        "text": today_str,
-                        "x_pct": date_x_pct, "y_pct": date_y_pct,
-                        "font_size": reg_date_font_size, "color": text_color,
-                        "align": "left",
-                    },
-                ]
             try:
                 path = generate_certificate(
                     template_img, name, CERT_DIR,
                     font_path=None, font_size=font_size,
                     text_color=text_color, y_position_pct=y_pos,
-                    x_position_pct=x_pos,
                     used_names=used_names,
-                    extra_fields=extra_fields,
                 )
-                # Keyed by row index, not name — two different participants
-                # can share the same name, and keying by name alone would
-                # make the second overwrite the first's mapping.
-                cert_paths[i] = path
+                cert_paths[name] = path
             except Exception as e:
-                cert_paths[i] = None
+                cert_paths[name] = None
                 log_event(rec.get("Email ID", ""), "CERT_GENERATION_FAILED", str(e))
             progress.progress((i + 1) / len(records), text=f"Generating {i+1} of {len(records)} — {name}")
         st.session_state.cert_paths = cert_paths
@@ -701,8 +643,8 @@ with tab2:
     if st.session_state.cert_paths:
         st.markdown("**Review**")
         review_df = pd.DataFrame(
-            [{"Name": records[idx]["Name"], "Certificate Generated": "Yes" if p else "No"}
-             for idx, p in st.session_state.cert_paths.items()]
+            [{"Name": n, "Certificate Generated": "Yes" if p else "No"}
+             for n, p in st.session_state.cert_paths.items()]
         )
         st.dataframe(review_df, use_container_width=True, height=220)
 
@@ -768,7 +710,7 @@ with tab3:
             name = rec["Name"]
             mobile = rec.get("Mobile Number", "")
             email = rec.get("Email ID", "")
-            cert_path = cert_paths.get(i)
+            cert_path = cert_paths.get(name)
             row = {
                 "Name": name,
                 "Mobile Number": mobile,
@@ -855,7 +797,7 @@ with tab4:
         if cert_paths and any(cert_paths.values()):
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-                for idx, path in cert_paths.items():
+                for name, path in cert_paths.items():
                     if path and os.path.exists(path):
                         zf.write(path, arcname=os.path.basename(path))
             st.download_button("⬇️ Certificates (.zip)", buf.getvalue(), file_name="Certificates.zip", mime="application/zip")
