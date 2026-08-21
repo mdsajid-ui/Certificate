@@ -8,6 +8,7 @@ Run with:  streamlit run app.py
 import os
 import io
 import zipfile
+import datetime
 
 import pandas as pd
 import streamlit as st
@@ -409,8 +410,19 @@ defaults = {
     "results": [],
     "font_size": 60,
     "y_pos_pct": 50,
+    "x_pos_pct": 50,
     "text_color_hex": "#0B1B4D",
     "confirmed_params": None,
+    "stamp_reg_date": True,
+    "reg_prefix": datetime.date.today().strftime("%Y%m") + "DVA",
+    "reg_start": 1001,
+    "reg_date_font_size": 24,
+    "reg_x_pct": 45,
+    "reg_y_pct": 61,
+    "reg_align": "left",
+    "date_x_pct": 79,
+    "date_y_pct": 61,
+    "date_align": "left",
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -497,30 +509,91 @@ with tab1:
             with c1:
                 font_size = st.slider("Font size (px)", 20, 300, key="font_size")
                 y_pos = st.slider("Vertical position (% down)", 0, 100, key="y_pos_pct") / 100.0
+                x_pos = st.slider("Horizontal position (% across)", 0, 100, key="x_pos_pct") / 100.0
             with c2:
                 color_hex = st.color_picker("Text color", key="text_color_hex")
                 if st.button("↺ Auto-fit to this template"):
                     s_y = suggest_name_position(template_img)
                     s_size, s_color = suggest_text_style(template_img, s_y)
                     st.session_state.y_pos_pct = int(round(s_y * 100))
+                    st.session_state.x_pos_pct = 50
                     st.session_state.font_size = s_size
                     st.session_state.text_color_hex = "#%02x%02x%02x" % s_color
                     st.session_state.confirmed_params = None
                     st.rerun()
+            st.caption(
+                "Most templates have the name centered — but if your template has "
+                "the name inline in a sentence (e.g. \"This is to certify that "
+                "[ ___ ] has completed...\"), its blank usually isn't dead-center. "
+                "Use the horizontal slider and the live preview below to line it up."
+            )
+
+        with st.expander("🔢 Registration number & date", expanded=False):
+            st.checkbox(
+                "Stamp a registration number and completion date on each certificate",
+                key="stamp_reg_date",
+            )
+            if st.session_state.stamp_reg_date:
+                st.caption(
+                    "Registration numbers are generated automatically — "
+                    "`{prefix}{start}`, `{prefix}{start+1}`, ... one per certificate in "
+                    "this batch. The date is filled in as today's date for every "
+                    "certificate. Use the sliders to line these up with the blank "
+                    "`[ ]` brackets already printed on your template."
+                )
+                rc1, rc2 = st.columns(2)
+                with rc1:
+                    st.text_input("Registration number prefix", key="reg_prefix")
+                    st.number_input("Starting number", min_value=1, step=1, key="reg_start")
+                    st.slider("Reg. no. font size (px)", 10, 150, key="reg_date_font_size")
+                with rc2:
+                    st.slider("Reg. no. horizontal position (%)", 0, 100, key="reg_x_pct")
+                    st.slider("Reg. no. vertical position (%)", 0, 100, key="reg_y_pct")
+                    st.slider("Date horizontal position (%)", 0, 100, key="date_x_pct")
+                    st.slider("Date vertical position (%)", 0, 100, key="date_y_pct")
 
         font_size = st.session_state.font_size
         y_pos = st.session_state.y_pos_pct / 100.0
+        x_pos = st.session_state.x_pos_pct / 100.0
         color_hex = st.session_state.text_color_hex
         text_color = tuple(int(color_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
 
         if st.session_state.records:
             sample_name = st.session_state.records[0]["Name"]
+            preview_extra_fields = None
+            if st.session_state.stamp_reg_date:
+                today_str = datetime.date.today().strftime("%d-%m-%Y")
+                preview_extra_fields = [
+                    {
+                        "text": f"{st.session_state.reg_prefix}{st.session_state.reg_start}",
+                        "x_pct": st.session_state.reg_x_pct / 100.0,
+                        "y_pct": st.session_state.reg_y_pct / 100.0,
+                        "font_size": st.session_state.reg_date_font_size,
+                        "color": text_color,
+                        "align": "left",
+                    },
+                    {
+                        "text": today_str,
+                        "x_pct": st.session_state.date_x_pct / 100.0,
+                        "y_pct": st.session_state.date_y_pct / 100.0,
+                        "font_size": st.session_state.reg_date_font_size,
+                        "color": text_color,
+                        "align": "left",
+                    },
+                ]
             preview_img = render_certificate_image(
-                template_img, sample_name, None, font_size, text_color, y_pos
+                template_img, sample_name, None, font_size, text_color, y_pos,
+                x_position_pct=x_pos, extra_fields=preview_extra_fields,
             )
             st.image(preview_img, caption=f"Live preview — {sample_name}", use_container_width=True)
 
-            current_params = (fingerprint, font_size, round(y_pos, 3), color_hex)
+            current_params = (
+                fingerprint, font_size, round(y_pos, 3), round(x_pos, 3), color_hex,
+                st.session_state.stamp_reg_date, st.session_state.reg_prefix,
+                st.session_state.reg_start, st.session_state.reg_date_font_size,
+                st.session_state.reg_x_pct, st.session_state.reg_y_pct,
+                st.session_state.date_x_pct, st.session_state.date_y_pct,
+            )
             confirmed = st.checkbox(
                 "✅ I can clearly see the name above on the certificate",
                 value=(st.session_state.confirmed_params == current_params),
@@ -550,9 +623,16 @@ with tab2:
     fingerprint = st.session_state.template_fingerprint
     font_size = st.session_state.font_size
     y_pos = st.session_state.y_pos_pct / 100.0
+    x_pos = st.session_state.x_pos_pct / 100.0
     color_hex = st.session_state.text_color_hex
     text_color = tuple(int(color_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
-    current_params = (fingerprint, font_size, round(y_pos, 3), color_hex)
+    current_params = (
+        fingerprint, font_size, round(y_pos, 3), round(x_pos, 3), color_hex,
+        st.session_state.stamp_reg_date, st.session_state.reg_prefix,
+        st.session_state.reg_start, st.session_state.reg_date_font_size,
+        st.session_state.reg_x_pct, st.session_state.reg_y_pct,
+        st.session_state.date_x_pct, st.session_state.date_y_pct,
+    )
     preview_confirmed = st.session_state.confirmed_params == current_params and fingerprint is not None
 
     disabled = not (records and template_path)
@@ -566,14 +646,44 @@ with tab2:
         progress = st.progress(0, text="Starting...")
         used_names = {}
         cert_paths = {}
+        today_str = datetime.date.today().strftime("%d-%m-%Y")
+        stamp_reg_date = st.session_state.stamp_reg_date
+        reg_prefix = st.session_state.reg_prefix
+        reg_start = st.session_state.reg_start
+        reg_date_font_size = st.session_state.reg_date_font_size
+        reg_x_pct = st.session_state.reg_x_pct / 100.0
+        reg_y_pct = st.session_state.reg_y_pct / 100.0
+        date_x_pct = st.session_state.date_x_pct / 100.0
+        date_y_pct = st.session_state.date_y_pct / 100.0
         for i, rec in enumerate(records):
             name = rec["Name"]
+            extra_fields = None
+            if stamp_reg_date:
+                # Sequential per certificate in this batch: prefix + start,
+                # start+1, start+2, ... — every record gets its own number
+                # even if names repeat.
+                extra_fields = [
+                    {
+                        "text": f"{reg_prefix}{reg_start + i}",
+                        "x_pct": reg_x_pct, "y_pct": reg_y_pct,
+                        "font_size": reg_date_font_size, "color": text_color,
+                        "align": "left",
+                    },
+                    {
+                        "text": today_str,
+                        "x_pct": date_x_pct, "y_pct": date_y_pct,
+                        "font_size": reg_date_font_size, "color": text_color,
+                        "align": "left",
+                    },
+                ]
             try:
                 path = generate_certificate(
                     template_img, name, CERT_DIR,
                     font_path=None, font_size=font_size,
                     text_color=text_color, y_position_pct=y_pos,
+                    x_position_pct=x_pos,
                     used_names=used_names,
+                    extra_fields=extra_fields,
                 )
                 # Keyed by row index, not name — two different participants
                 # can share the same name, and keying by name alone would
