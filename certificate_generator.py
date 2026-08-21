@@ -194,10 +194,17 @@ def render_certificate_image(
     font_size: int = 60,
     text_color: tuple = (5, 3, 116),
     y_position_pct: float = 0.50,
+    x_position_pct: float = 0.50,
+    extra_fields: list = None,
 ) -> Image.Image:
     """
-    Return a copy of the template image with `name` drawn centered
-    horizontally at `y_position_pct` (0.0 = top, 1.0 = bottom) of the image.
+    Return a copy of the template image with `name` drawn centered on the
+    point (x_position_pct, y_position_pct) of the image (each 0.0-1.0).
+    Defaults to dead-center horizontally, matching this function's original
+    behavior — but not every template has its name blank at the horizontal
+    middle (e.g. a "fill in the blank" sentence like "This is to certify
+    that [ ___ ] has completed..." has its blank off-center), so callers can
+    override x_position_pct to match.
     """
     img = template_img.copy()
     draw = ImageDraw.Draw(img)
@@ -208,10 +215,37 @@ def render_certificate_image(
     text_w = bbox[2] - bbox[0]
     text_h = bbox[3] - bbox[1]
 
-    x = (img.width - text_w) / 2
+    x = (img.width * x_position_pct) - (text_w / 2)
     y = (img.height * y_position_pct) - (text_h / 2)
 
     draw.text((x, y), text, font=font, fill=text_color)
+
+    for field in (extra_fields or []):
+        f_text = str(field.get("text", "")).strip()
+        if not f_text:
+            continue
+        f_font_size = field.get("font_size") or max(12, font_size // 2)
+        f_font = get_font(font_path, f_font_size)
+        f_color = field.get("color", text_color)
+        align = field.get("align", "center")
+
+        f_bbox = draw.textbbox((0, 0), f_text, font=f_font)
+        f_w = f_bbox[2] - f_bbox[0]
+        f_h = f_bbox[3] - f_bbox[1]
+
+        cx = img.width * field.get("x_pct", 0.5)
+        cy = img.height * field.get("y_pct", 0.68)
+
+        if align == "left":
+            fx = cx
+        elif align == "right":
+            fx = cx - f_w
+        else:
+            fx = cx - f_w / 2
+        fy = cy - f_h / 2
+
+        draw.text((fx, fy), f_text, font=f_font, fill=f_color)
+
     return img
 
 
@@ -229,17 +263,22 @@ def generate_certificate(
     font_size: int = 60,
     text_color: tuple = (5, 3, 116),
     y_position_pct: float = 0.50,
+    x_position_pct: float = 0.50,
     used_names: dict = None,
+    extra_fields: list = None,
 ) -> str:
     """
     Generate one certificate for `name` and save it to `output_dir`.
     Returns the output file path. Handles duplicate names by suffixing _2, _3, etc.
+    `extra_fields` (optional) stamps additional text — e.g. a registration
+    number and completion date — see render_certificate_image() for the shape.
     """
     os.makedirs(output_dir, exist_ok=True)
     used_names = used_names if used_names is not None else {}
 
     rendered = render_certificate_image(
-        template_img, name, font_path, font_size, text_color, y_position_pct
+        template_img, name, font_path, font_size, text_color, y_position_pct,
+        x_position_pct=x_position_pct, extra_fields=extra_fields,
     )
 
     base = sanitize_filename(name)
