@@ -575,9 +575,12 @@ with tab2:
                     text_color=text_color, y_position_pct=y_pos,
                     used_names=used_names,
                 )
-                cert_paths[name] = path
+                # Keyed by row index, not name — two different participants
+                # can share the same name, and keying by name alone would
+                # make the second overwrite the first's mapping.
+                cert_paths[i] = path
             except Exception as e:
-                cert_paths[name] = None
+                cert_paths[i] = None
                 log_event(rec.get("Email ID", ""), "CERT_GENERATION_FAILED", str(e))
             progress.progress((i + 1) / len(records), text=f"Generating {i+1} of {len(records)} — {name}")
         st.session_state.cert_paths = cert_paths
@@ -588,8 +591,8 @@ with tab2:
     if st.session_state.cert_paths:
         st.markdown("**Review**")
         review_df = pd.DataFrame(
-            [{"Name": n, "Certificate Generated": "Yes" if p else "No"}
-             for n, p in st.session_state.cert_paths.items()]
+            [{"Name": records[idx]["Name"], "Certificate Generated": "Yes" if p else "No"}
+             for idx, p in st.session_state.cert_paths.items()]
         )
         st.dataframe(review_df, use_container_width=True, height=220)
 
@@ -655,7 +658,7 @@ with tab3:
             name = rec["Name"]
             mobile = rec.get("Mobile Number", "")
             email = rec.get("Email ID", "")
-            cert_path = cert_paths.get(name)
+            cert_path = cert_paths.get(i)
             row = {
                 "Name": name,
                 "Mobile Number": mobile,
@@ -742,7 +745,7 @@ with tab4:
         if cert_paths and any(cert_paths.values()):
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-                for name, path in cert_paths.items():
+                for idx, path in cert_paths.items():
                     if path and os.path.exists(path):
                         zf.write(path, arcname=os.path.basename(path))
             st.download_button("⬇️ Certificates (.zip)", buf.getvalue(), file_name="Certificates.zip", mime="application/zip")
