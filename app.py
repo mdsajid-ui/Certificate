@@ -71,8 +71,8 @@ def login():
             50%      { transform: translateY(-8px); }
         }
         @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 0 10px rgba(212,175,55,.08), 0 12px 35px rgba(212,175,55,.35); }
-            50%      { box-shadow: 0 0 0 16px rgba(212,175,55,.14), 0 16px 44px rgba(212,175,55,.5); }
+            0%, 100% { box-shadow: 0 0 0 10px rgba(45,212,191,.08), 0 12px 35px rgba(16,185,129,.35); }
+            50%      { box-shadow: 0 0 0 16px rgba(45,212,191,.14), 0 16px 44px rgba(16,185,129,.5); }
         }
         @keyframes shimmer {
             0%   { background-position: -300px 0; }
@@ -81,10 +81,10 @@ def login():
 
         .stApp {
             background:
-                radial-gradient(circle at 8% 82%, rgba(0, 200, 255, .26), transparent 30%),
-                radial-gradient(circle at 92% 78%, rgba(212, 40, 255, .24), transparent 32%),
-                radial-gradient(circle at 55% 8%, rgba(212, 175, 55, .16), transparent 40%),
-                linear-gradient(135deg, #030b2e 0%, #06133f 40%, #1a0838 75%, #0a0322 100%);
+                radial-gradient(circle at 8% 82%, rgba(20, 184, 166, .26), transparent 30%),
+                radial-gradient(circle at 92% 78%, rgba(16, 185, 129, .22), transparent 32%),
+                radial-gradient(circle at 55% 8%, rgba(45, 212, 191, .16), transparent 40%),
+                linear-gradient(135deg, #01110d 0%, #042e24 40%, #063d2f 75%, #011a14 100%);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
@@ -93,8 +93,8 @@ def login():
             content: "";
             position: fixed; inset: -10%;
             background:
-                radial-gradient(circle at 20% 30%, rgba(59,140,255,.10), transparent 35%),
-                radial-gradient(circle at 80% 70%, rgba(168,44,255,.10), transparent 35%);
+                radial-gradient(circle at 20% 30%, rgba(20,184,166,.10), transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(16,185,129,.10), transparent 35%);
             animation: auroraDrift 16s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
@@ -104,8 +104,8 @@ def login():
         .login-top { display: flex; justify-content: center; margin-bottom: 22px; }
         .login-top-badge {
             display: inline-flex; align-items: center; gap: 9px; padding: 8px 18px;
-            border: 1px solid rgba(212,175,55,.35); border-radius: 999px; color: #ffe9ad;
-            background: linear-gradient(90deg, rgba(212,175,55,.10), rgba(255,255,255,.04));
+            border: 1px solid rgba(45,212,191,.35); border-radius: 999px; color: #99f6e4;
+            background: linear-gradient(90deg, rgba(45,212,191,.10), rgba(255,255,255,.04));
             font-size: 12.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase;
             backdrop-filter: blur(12px);
         }
@@ -116,9 +116,9 @@ def login():
             width: 78px; height: 78px; margin: 0 auto 20px; border-radius: 20px;
             display: flex; align-items: center; justify-content: center; color: white;
             font-size: 32px; font-weight: 800; letter-spacing: -2px;
-            background: linear-gradient(150deg, #d4af37 0%, #a832ff 55%, #096dff 100%);
+            background: linear-gradient(150deg, #2dd4bf 0%, #10b981 55%, #065f46 100%);
             border: 1px solid rgba(255,255,255,.28);
-            box-shadow: 0 18px 45px rgba(120,80,255,.35), inset 0 1px 0 rgba(255,255,255,.25);
+            box-shadow: 0 18px 45px rgba(16,185,129,.35), inset 0 1px 0 rgba(255,255,255,.25);
             position: relative;
             animation: floatY 5s ease-in-out infinite;
         }
@@ -129,10 +129,10 @@ def login():
         }
         .brand-title {
             font-size: clamp(30px, 4.2vw, 46px); line-height: 1.1; font-weight: 800; letter-spacing: -1.6px; margin: 0;
-            background: linear-gradient(90deg, #ffffff 20%, #d4c4ff 50%, #ffe9ad 80%);
+            background: linear-gradient(90deg, #ffffff 20%, #99f6e4 50%, #34d399 80%);
             -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .brand-subtitle { color: rgba(232,238,255,.72); font-size: 15.5px; margin-top: 11px; letter-spacing: .1px; }
+        .brand-subtitle { color: rgba(220,252,241,.72); font-size: 15.5px; margin-top: 11px; letter-spacing: .1px; }
 
         .login-card {
             max-width: 560px; margin: 0 auto; padding: 38px 38px 32px; border-radius: 26px;
@@ -152,23 +152,23 @@ def login():
         .lock-circle {
             width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 30px;
-            background: linear-gradient(135deg, #d4af37, #a832ff 60%, #126cff);
+            background: linear-gradient(135deg, #2dd4bf, #10b981 60%, #065f46);
             animation: glowPulse 3s ease-in-out infinite;
         }
         .welcome-title {
             text-align: center; font-size: 27px; font-weight: 750; margin: 0;
-            background: linear-gradient(90deg, #ffffff, #f0e6ff);
+            background: linear-gradient(90deg, #ffffff, #d1fae5);
             -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
         .welcome-text { text-align: center; color: rgba(232,238,255,.68); margin: 8px 0 26px; font-size: 14.5px; }
 
-        .stTextInput > label { color: #ffe9ad !important; font-weight: 600 !important; font-size: 13.5px !important; letter-spacing: .2px; text-transform: uppercase; }
+        .stTextInput > label { color: #6ee7d1 !important; font-weight: 600 !important; font-size: 13.5px !important; letter-spacing: .2px; text-transform: uppercase; }
         .stTextInput > div > div {
-            background: rgba(4,15,48,.45) !important; border: 1px solid rgba(255,255,255,.16) !important;
+            background: rgba(2,20,16,.45) !important; border: 1px solid rgba(255,255,255,.16) !important;
             border-radius: 13px !important; min-height: 54px !important; transition: .2s ease;
         }
         .stTextInput > div > div:focus-within {
-            border-color: #d4af37 !important; box-shadow: 0 0 0 3px rgba(212,175,55,.18) !important;
+            border-color: #2dd4bf !important; box-shadow: 0 0 0 3px rgba(45,212,191,.18) !important;
         }
         .stTextInput input { color: #ffffff !important; font-size: 15px !important; }
         .stTextInput input::placeholder { color: rgba(255,255,255,.38) !important; }
@@ -176,7 +176,7 @@ def login():
         .login-actions { display: flex; justify-content: space-between; align-items: center; color: rgba(238,243,255,.70); font-size: 13px; margin: 4px 2px 20px; }
         .remember { display: flex; gap: 7px; align-items: center; }
         .remember .tick { color: #34d399; font-weight: 800; }
-        .login-actions .secure-access { display: flex; align-items: center; gap: 6px; color: #ffe9ad; font-weight: 600; }
+        .login-actions .secure-access { display: flex; align-items: center; gap: 6px; color: #6ee7d1; font-weight: 600; }
 
         .secure-line { display: flex; align-items: center; gap: 14px; color: rgba(236,242,255,.75); margin-top: 26px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
         .secure-line:before, .secure-line:after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); }
@@ -193,14 +193,14 @@ def login():
         .stButton > button {
             width: 100% !important; min-height: 56px !important; border: 0 !important; border-radius: 13px !important;
             color: white !important; font-size: 16px !important; font-weight: 750 !important; letter-spacing: .2px;
-            background: linear-gradient(90deg, #096dff 0%, #7140ff 45%, #a832ff 75%, #d4af37 100%) !important;
+            background: linear-gradient(90deg, #065f46 0%, #10b981 45%, #2dd4bf 75%, #5eead4 100%) !important;
             background-size: 200% auto !important;
-            box-shadow: 0 14px 34px rgba(120,80,255,.38) !important;
+            box-shadow: 0 14px 34px rgba(16,185,129,.38) !important;
             transition: transform .18s ease, box-shadow .18s ease, background-position .4s ease !important;
         }
         .stButton > button:hover {
             transform: translateY(-2px); background-position: right center !important;
-            box-shadow: 0 18px 44px rgba(212,175,55,.35) !important;
+            box-shadow: 0 18px 44px rgba(45,212,191,.35) !important;
         }
         .stButton > button:active { transform: translateY(0px) scale(.99); }
 
